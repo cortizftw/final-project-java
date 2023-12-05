@@ -35,8 +35,8 @@ public class P2MahotraSOrtizCGrishaG {
 	
 	//Details for MySQL connection
 	public static String jdbcurl = "jdbc:mysql://localhost:3306/dtkfall";
-	public static String username = "root";
-	public static String password = "1234";
+	public static String username = "****";
+	public static String password = "****";
 		
 	
 	//Create table query
