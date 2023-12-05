@@ -107,56 +107,62 @@ public class P2MahotraSOrtizCGrishaG {
 	
 	
 	//Viewing a record method
-	public void selectID(Scanner sc) 
-	{
+	public void selectID(Scanner sc) {
 		
-		try (Connection conn = P2MahotraSOrtizCGrishaG.getConnection();
-				PreparedStatement ps = conn.prepareStatement(selectQuery)) {
-			
-			//User prompt
-			System.out.println("Please enter the Staff ID you want to retrieve");
-			String StaffID = sc.next();
-			ps.setString(1, StaffID);
-			ResultSet rs = ps.executeQuery();
-			
-			boolean found = false;
-			
-			while(rs.next())
-			{	
-				found = true;
-				String id = rs.getString("id");
-				String lastName = rs.getString("lastName");
-				String firstName = rs.getString("firstName");
-				char mi = rs.getString("mi").charAt(0); 	//Check
-				int age = rs.getInt("age");					//Check
-				String address = rs.getString("address");
-				String city = rs.getString("city");
-				String state = rs.getString("state");
-				String telephone = rs.getString("telephone");
-				String email = rs.getString("email");
-				
-				//Show the retrieved staff information
-				System.out.println("\nPlease see staff information with ID: "+id);
-				System.out.println("Name : "+firstName +" "+mi+" "+lastName);
-				System.out.println("Age : "+age);
-				System.out.println("Street Address : "+address);
-				System.out.println("City : "+city);
-				System.out.println("State : "+state);
-				System.out.println("Telephone : "+telephone);
-				System.out.println("Email : "+email);
-				
-				//User prompt back to the menu option
-				System.out.println("\nChoose the operation you'd like to perform next.");
-			}
-			
-			if (!found) {
-	            System.out.println("Staff ID not found."); //Validation for non-existent Staff ID
+		//Include a boolean placeholder for the loop
+	    boolean validIdFound = false;
+
+	    while (!validIdFound) {
+	        try (Connection conn = P2MahotraSOrtizCGrishaG.getConnection();
+	             PreparedStatement ps = conn.prepareStatement(selectQuery)) {
+
+	            // User prompt
+	            System.out.println("Please enter the Staff ID you want to retrieve");
+	            String staffID = sc.next();
+	            ps.setString(1, staffID);
+	            ResultSet rs = ps.executeQuery();
+
+	            boolean found = false;
+
+	            while (rs.next()) {
+	                found = true;
+	                String id = rs.getString("id");
+	                String lastName = rs.getString("lastName");
+	                String firstName = rs.getString("firstName");
+	                char mi = rs.getString("mi").charAt(0);  // Check
+	                int age = rs.getInt("age");               // Check
+	                String address = rs.getString("address");
+	                String city = rs.getString("city");
+	                String state = rs.getString("state");
+	                String telephone = rs.getString("telephone");
+	                String email = rs.getString("email");
+
+	                // Show the retrieved staff information
+	                System.out.println("\nPlease see staff information with ID: " + id);
+	                System.out.println("Name : " + firstName + " " + mi + " " + lastName);
+	                System.out.println("Age : " + age);
+	                System.out.println("Street Address : " + address);
+	                System.out.println("City : " + city);
+	                System.out.println("State : " + state);
+	                System.out.println("Telephone : " + telephone);
+	                System.out.println("Email : " + email);
+
+	                // User prompt back to the menu option
+	                System.out.println("\nChoose the operation you'd like to perform next.");
+	            }
+
+	            if (!found) {
+	                System.out.println("Staff ID not found. Please try again."); // Validation for non-existent Staff ID
+	            } else {
+	                validIdFound = true; // Exit the loop as a valid ID is found
+	            }
+
+	        } catch (SQLException e) {
+	            System.out.println("Error retrieving staff information: " + e.getMessage());
 	        }
-			
-		} catch (SQLException e) {
-			System.out.println("Error retrieving staff information: " + e.getMessage());
-		}
+	    }
 	}
+
 	
 	
 	// Viewing all records method
@@ -190,14 +196,25 @@ public class P2MahotraSOrtizCGrishaG {
 	        // Sort the collection by age in ascending order
 	        Collections.sort(staffList, Comparator.comparingInt(Staff::getAge));
 	        
-	        // Display the sorted staff information
-	        for (Staff staff : staffList) {
-	            System.out.println("ID: " + staff.getId() + ", Name: " + staff.getFirstName() + " " + staff.getMi() + " " + staff.getLastName() + ", Age: " + staff.getAge());
+	        // Check if collection list if empty before returning the data
+	        if (!staffList.isEmpty()) {
+	        	System.out.println("Showing all Staff Information...\n");
+	        	for (Staff staff : staffList) {
+		            System.out.println("ID: " + staff.getId());
+		            System.out.println("Name: " + staff.getFirstName() + " " + staff.getMi() + " " + staff.getLastName());
+		            System.out.println("Age: " + staff.getAge());
+		            System.out.println("Address: " + staff.getAddress() + " " +staff.getCity() + " " + staff.getState());
+		            System.out.println("Telephone: " + staff.getTelephone());
+		            System.out.println("Email: " + staff.getEmail()+"\n");
+		        }
+	        	System.out.println("\nChoose the operation you'd like to perform next.");
+	        } else {
+	            System.out.println("No Staff Information found.");
 	        }
 	        
 	    } catch (SQLException e) {
-	        e.printStackTrace();
-	    }
+            System.out.println("Error retrieving staff information: " + e.getMessage());
+        }
 	}
 
 	
@@ -314,12 +331,14 @@ public class P2MahotraSOrtizCGrishaG {
 		boolean exit = false;
 		
 		while (exit == false) {
-	        System.out.println("(1) View Staff Information by ID");
-	        System.out.println("(2) View All Staff Information");
-	        System.out.println("(3) Insert New Staff Information");
-	        System.out.println("(4) Update Staff Information");
-	        System.out.println("(5) Delete Staff Information");
-	        System.out.println("(6) Exit");
+			System.out.println("_________________________________________");
+	        System.out.println("|(1) View Staff Information by ID	|");	
+	        System.out.println("|(2) View All Staff Information		|");
+	        System.out.println("|(3) Insert New Staff Information	|");
+	        System.out.println("|(4) Update Staff Information		|");
+	        System.out.println("|(5) Delete Staff Information		|");
+	        System.out.println("|(6) Exit				|");
+	        System.out.println("_________________________________________");
 	        
 	        
             try {
@@ -352,5 +371,6 @@ public class P2MahotraSOrtizCGrishaG {
                 sc.next(); 
             }
 	    }
+		System.out.println("Have a nice day!");
 	}
 }
