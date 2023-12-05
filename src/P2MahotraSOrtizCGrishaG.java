@@ -10,6 +10,8 @@
  * 
  * Revision History:
  *     Example: Shivam Mahotra and Charina Ortiz, 2023.12.04: Created
+ *     			Shivam Mahotra and Charina Ortiz, 2023.12.05: Updated
+ *     	
  */
 
 //Import libraries
@@ -58,6 +60,11 @@ public class P2MahotraSOrtizCGrishaG {
 	
 	//View all records query
 	public static String selectAllQuery = "SELECT * FROM STAFF";
+	
+	//Insert a record query
+	public static String insertQuery = "INSERT INTO STAFF"
+			+ "(id, lastName, firstName, mi, age, address, city, state, telephone, email) "
+			+ "values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 	
 	
 	//Methods
@@ -162,6 +169,39 @@ public class P2MahotraSOrtizCGrishaG {
 	    }
 	}
 
+	//Insert a record method
+	public void insertRecord() {
+		System.out.println(insertQuery);
+		try (Connection conn = P2MahotraSOrtizCGrishaG.getConnection();
+				PreparedStatement ps = conn.prepareStatement(insertQuery)) {
+			
+			Scanner sc = new Scanner(System.in);
+			System.out.println("Enter Staff ID:");
+			ps.setString(1, sc.next());
+			System.out.println("Enter Last Name:");
+			ps.setString(2,  sc.next());
+			System.out.println("Enter First Name:");
+			ps.setString(3, sc.next());
+			System.out.println("Enter Middle Initial:");
+			ps.setString(4, sc.next()); 				//Check - should be char
+			System.out.println("Enter Age:");
+			ps.setInt(5, sc.nextInt());
+			System.out.println("Enter Address:");
+			ps.setString(6, sc.next());
+			System.out.println("Enter City:");
+			ps.setString(7, sc.next());
+			System.out.println("Enter State:");
+			ps.setString(8, sc.next());
+			System.out.println("Enter Telephone:");
+			ps.setString(9, sc.next());
+			System.out.println("Enter Email:");
+			ps.setString(10, sc.next());
+			ps.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		System.out.println("Records are successfully added to the STAFF table...");
+	}
 	
 	public static void main(String[] args) {
 		
