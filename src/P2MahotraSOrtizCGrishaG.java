@@ -61,12 +61,24 @@ public class P2MahotraSOrtizCGrishaG {
 	//View all records query
 	public static String selectAllQuery = "SELECT * FROM STAFF";
 	
+	
 	//Insert a record query
 	public static String insertQuery = "INSERT INTO STAFF"
 			+ "(id, lastName, firstName, mi, age, address, city, state, telephone, email) "
 			+ "values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 	
 	
+	//Update a record query
+	public static String updateQuery = "UPDATE STAFF "
+	        + "SET lastName = ?, firstName = ?, mi = ?, age = ?, address = ?, "
+	        + "city = ?, state = ?, telephone = ?, email = ? "
+	        + "WHERE id = ?";
+
+	
+	//Delete a record query
+	public static String deleteQuery = "DELETE FROM STAFF WHERE id = ?";
+
+						
 	//Methods
 	//Establishing connection to MySQL database
 	public static Connection getConnection() {
@@ -79,6 +91,7 @@ public class P2MahotraSOrtizCGrishaG {
 		return conn;
 	}
 	
+	
 	//Creating a table method
 	public void createTable() {
 		System.out.println("Creating a table using the query as follows: \n");
@@ -90,6 +103,7 @@ public class P2MahotraSOrtizCGrishaG {
 			System.out.println(e.getMessage());
 		}
 	}
+	
 	
 	//Viewing a record method
 	public void selectID(String StaffId ) 
@@ -169,6 +183,7 @@ public class P2MahotraSOrtizCGrishaG {
 	    }
 	}
 
+	
 	//Insert a record method
 	public void insertRecord() {
 		System.out.println(insertQuery);
@@ -201,6 +216,65 @@ public class P2MahotraSOrtizCGrishaG {
 			e.printStackTrace();
 		}
 		System.out.println("Records are successfully added to the STAFF table...");
+	}
+	
+	
+	//Update a record method
+	public void updateRecord() {
+		System.out.println(updateQuery);
+		try (Connection conn = P2MahotraSOrtizCGrishaG.getConnection();
+				PreparedStatement ps = conn.prepareStatement(updateQuery)) {
+			
+			//Might need to fetch record first then show before and after records
+			//Check if user wants to update particular field, if no fetch currect record
+			Scanner sc = new Scanner(System.in);
+			System.out.println("Enter Staff ID to update:");
+			ps.setString(10, sc.next());
+			System.out.println("Enter Updated Last Name:");
+			ps.setString(1,  sc.next());
+			System.out.println("Enter Updated First Name:");
+			ps.setString(2, sc.next());
+			System.out.println("Enter Updated Middle Initial:");
+			ps.setString(3, sc.next()); 				//Check - should be char
+			System.out.println("Enter Updated Age:");
+			ps.setInt(4, sc.nextInt());
+			System.out.println("Enter Updated Address:");
+			ps.setString(5, sc.next());
+			System.out.println("Enter Updated City:");
+			ps.setString(6, sc.next());
+			System.out.println("Enter Updated State:");
+			ps.setString(7, sc.next());
+			System.out.println("Enter Updated Telephone:");
+			ps.setString(8, sc.next());
+			System.out.println("Enter Updated Email:");
+			ps.setString(9, sc.next());
+			ps.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		System.out.println("Records are successfully added to the STAFF table...");
+	}
+	
+	
+	//Delete a record method
+	public void deleteRecord() {
+		//Initialize the deletedId
+		String deletedID = "";
+		try (Connection conn = P2MahotraSOrtizCGrishaG.getConnection();
+				PreparedStatement ps = conn.prepareStatement(deleteQuery)) {
+			
+			//Might need to fetch record first then show before and after records
+			//Check if user wants to update particular field, if no fetch currect record
+			Scanner sc = new Scanner(System.in);
+			System.out.println("Enter the ID of the staff information you want to delete");
+			//Capture the deletedId
+			deletedID = sc.next();
+			ps.setString(1, deletedID);
+			ps.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		System.out.println("Staff information with ID "+deletedID+" is deleted successfully...");
 	}
 	
 	public static void main(String[] args) {
