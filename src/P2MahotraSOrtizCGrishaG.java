@@ -20,6 +20,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
 import java.sql.Connection;
@@ -35,8 +36,8 @@ public class P2MahotraSOrtizCGrishaG {
 	
 	//Details for MySQL connection
 	public static String jdbcurl = "jdbc:mysql://localhost:3306/dtkfall";
-	public static String username = "****";
-	public static String password = "****";
+	public static String username = "root";
+	public static String password = "1234";
 		
 	
 	//Create table query
@@ -106,11 +107,14 @@ public class P2MahotraSOrtizCGrishaG {
 	
 	
 	//Viewing a record method
-	public void selectID(String StaffId ) 
+	public void selectID(Scanner sc) 
 	{
 		try (Connection conn = P2MahotraSOrtizCGrishaG.getConnection();
 				PreparedStatement ps = conn.prepareStatement(selectQuery)) {
-			ps.setString(1, StaffId);
+			
+			//User prompt
+			System.out.println("Please enter the Staff ID you want to retrieve");
+			ps.setString(1, sc.next());
 			ResultSet rs = ps.executeQuery();
 			
 			while(rs.next())
@@ -185,12 +189,11 @@ public class P2MahotraSOrtizCGrishaG {
 
 	
 	//Insert a record method
-	public void insertRecord() {
+	public void insertRecord(Scanner sc) {
 		System.out.println(insertQuery);
 		try (Connection conn = P2MahotraSOrtizCGrishaG.getConnection();
 				PreparedStatement ps = conn.prepareStatement(insertQuery)) {
 			
-			Scanner sc = new Scanner(System.in);
 			System.out.println("Enter Staff ID:");
 			ps.setString(1, sc.next());
 			System.out.println("Enter Last Name:");
@@ -220,14 +223,13 @@ public class P2MahotraSOrtizCGrishaG {
 	
 	
 	//Update a record method
-	public void updateRecord() {
+	public void updateRecord(Scanner sc) {
 		System.out.println(updateQuery);
 		try (Connection conn = P2MahotraSOrtizCGrishaG.getConnection();
 				PreparedStatement ps = conn.prepareStatement(updateQuery)) {
 			
 			//Might need to fetch record first then show before and after records
 			//Check if user wants to update particular field, if no fetch currect record
-			Scanner sc = new Scanner(System.in);
 			System.out.println("Enter Staff ID to update:");
 			ps.setString(10, sc.next());
 			System.out.println("Enter Updated Last Name:");
@@ -257,7 +259,7 @@ public class P2MahotraSOrtizCGrishaG {
 	
 	
 	//Delete a record method
-	public void deleteRecord() {
+	public void deleteRecord(Scanner sc) {
 		//Initialize the deletedId
 		String deletedID = "";
 		try (Connection conn = P2MahotraSOrtizCGrishaG.getConnection();
@@ -265,7 +267,6 @@ public class P2MahotraSOrtizCGrishaG {
 			
 			//Might need to fetch record first then show before and after records
 			//Check if user wants to update particular field, if no fetch currect record
-			Scanner sc = new Scanner(System.in);
 			System.out.println("Enter the ID of the staff information you want to delete");
 			//Capture the deletedId
 			deletedID = sc.next();
@@ -280,17 +281,60 @@ public class P2MahotraSOrtizCGrishaG {
 	public static void main(String[] args) {
 		
 		//Create an instance of the class
-		P2MahotraSOrtizCGrishaG s = new P2MahotraSOrtizCGrishaG();
+		P2MahotraSOrtizCGrishaG ddl = new P2MahotraSOrtizCGrishaG();
 		
 		//Establish a connection
-		s.getConnection();
-		System.out.println("Trying to connect to MySQL database...\n");
-		System.out.println("Success! Database connection has been established.\n");
+		System.out.println("Trying to connect to MySQL database...");
+		ddl.getConnection();
+		System.out.println("Success! Database connection has been established.");
 		
 		//Create a table
-		s.createTable();
+//		s.createTable();
 		
-		//
-	}
+		//Welcome message and menu button
+		System.out.println("=====================================================================");
+		System.out.println("Welcome to Java-MySQL Database integration console.");
+		System.out.println("=====================================================================");
+	
+		Scanner sc = new Scanner(System.in);
+		boolean exit = false;
+		
+		while (exit == false) {
+			System.out.println("Choose an operation from the menu below. Type only the number.");
+	        System.out.println("(1) View Staff Information by ID");
+	        System.out.println("(2) View All Staff Information");
+	        System.out.println("(3) Insert New Staff Information");
+	        System.out.println("(4) Update Staff Information");
+	        System.out.println("(5) Delete Staff Information");
+	        System.out.println("(6) Exit");
+	        
+	        
+            try {
+                int choice = sc.nextInt();
 
+                switch (choice) {
+                    case 1:
+                        ddl.selectID(sc);
+                        break;
+                    case 2:
+                        ddl.insertRecord(sc);
+                        break;
+                    case 3:
+                        ddl.updateRecord(sc);
+                        break;
+                    case 4:
+                        ddl.deleteRecord(sc);
+                        break;
+                    case 5:
+                        exit = true;
+                        break;
+                    default:
+                        System.out.println("Invalid choice. Please enter a valid option.");
+                }
+            } catch (InputMismatchException e) {
+                System.out.println("Invalid choice. Please enter a valid option.");  //Validation - Raise an error message for input other than integer
+                sc.next(); 
+            }
+	    }
+	}
 }
