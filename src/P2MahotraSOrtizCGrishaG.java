@@ -109,16 +109,21 @@ public class P2MahotraSOrtizCGrishaG {
 	//Viewing a record method
 	public void selectID(Scanner sc) 
 	{
+		
 		try (Connection conn = P2MahotraSOrtizCGrishaG.getConnection();
 				PreparedStatement ps = conn.prepareStatement(selectQuery)) {
 			
 			//User prompt
 			System.out.println("Please enter the Staff ID you want to retrieve");
-			ps.setString(1, sc.next());
+			String StaffID = sc.next();
+			ps.setString(1, StaffID);
 			ResultSet rs = ps.executeQuery();
 			
+			boolean found = false;
+			
 			while(rs.next())
-			{
+			{	
+				found = true;
 				String id = rs.getString("id");
 				String lastName = rs.getString("lastName");
 				String firstName = rs.getString("firstName");
@@ -131,7 +136,7 @@ public class P2MahotraSOrtizCGrishaG {
 				String email = rs.getString("email");
 				
 				//Show the retrieved staff information
-				System.out.println("Please see staff information with ID: "+id);
+				System.out.println("\nPlease see staff information with ID: "+id);
 				System.out.println("Name : "+firstName +" "+mi+" "+lastName);
 				System.out.println("Age : "+age);
 				System.out.println("Street Address : "+address);
@@ -139,9 +144,17 @@ public class P2MahotraSOrtizCGrishaG {
 				System.out.println("State : "+state);
 				System.out.println("Telephone : "+telephone);
 				System.out.println("Email : "+email);
+				
+				//User prompt back to the menu option
+				System.out.println("\nChoose the operation you'd like to perform next.");
 			}
+			
+			if (!found) {
+	            System.out.println("Staff ID not found."); //Validation for non-existent Staff ID
+	        }
+			
 		} catch (SQLException e) {
-			e.printStackTrace();
+			System.out.println("Error retrieving staff information: " + e.getMessage());
 		}
 	}
 	
@@ -295,12 +308,12 @@ public class P2MahotraSOrtizCGrishaG {
 		System.out.println("=====================================================================");
 		System.out.println("Welcome to Java-MySQL Database integration console.");
 		System.out.println("=====================================================================");
+		System.out.println("Choose an operation from the menu below. Type only the number.");
 	
 		Scanner sc = new Scanner(System.in);
 		boolean exit = false;
 		
 		while (exit == false) {
-			System.out.println("Choose an operation from the menu below. Type only the number.");
 	        System.out.println("(1) View Staff Information by ID");
 	        System.out.println("(2) View All Staff Information");
 	        System.out.println("(3) Insert New Staff Information");
@@ -317,15 +330,18 @@ public class P2MahotraSOrtizCGrishaG {
                         ddl.selectID(sc);
                         break;
                     case 2:
-                        ddl.insertRecord(sc);
+                        ddl.selectAll();
                         break;
                     case 3:
-                        ddl.updateRecord(sc);
+                        ddl.insertRecord(sc);
                         break;
                     case 4:
-                        ddl.deleteRecord(sc);
+                        ddl.updateRecord(sc);
                         break;
                     case 5:
+                        ddl.deleteRecord(sc);
+                        break;
+                    case 6:
                         exit = true;
                         break;
                     default:
