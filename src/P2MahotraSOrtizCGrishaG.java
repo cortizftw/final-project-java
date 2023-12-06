@@ -400,37 +400,195 @@ public class P2MahotraSOrtizCGrishaG {
 	
 	//Update a record method
 	public void updateRecord(Scanner sc) {
-		System.out.println(updateQuery);
-		try (Connection conn = P2MahotraSOrtizCGrishaG.getConnection();
-				PreparedStatement ps = conn.prepareStatement(updateQuery)) {
-			
-			//Might need to fetch record first then show before and after records
-			//Check if user wants to update particular field, if no fetch currect record
-			System.out.println("Enter Staff ID to update:");
-			ps.setString(10, sc.next());
-			System.out.println("Enter Updated Last Name:");
-			ps.setString(1,  sc.next());
-			System.out.println("Enter Updated First Name:");
-			ps.setString(2, sc.next());
-			System.out.println("Enter Updated Middle Initial:");
-			ps.setString(3, sc.next()); 				//Check - should be char
-			System.out.println("Enter Updated Age:");
-			ps.setInt(4, sc.nextInt());
-			System.out.println("Enter Updated Address:");
-			ps.setString(5, sc.next());
-			System.out.println("Enter Updated City:");
-			ps.setString(6, sc.next());
-			System.out.println("Enter Updated State:");
-			ps.setString(7, sc.next());
-			System.out.println("Enter Updated Telephone:");
-			ps.setString(8, sc.next());
-			System.out.println("Enter Updated Email:");
-			ps.setString(9, sc.next());
-			ps.executeUpdate();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		System.out.println("Records are successfully added to the STAFF table...");
+	    try (Connection conn = P2MahotraSOrtizCGrishaG.getConnection();
+	         PreparedStatement psCheckId = conn.prepareStatement("SELECT COUNT(*) FROM STAFF WHERE id = ?");
+	         PreparedStatement psCheck = conn.prepareStatement("SELECT COUNT(*) FROM STAFF WHERE firstName = ? AND lastName = ? AND age = ?");
+	         PreparedStatement psUpdate = conn.prepareStatement(updateQuery)) {
+
+	        boolean validIdFound = false;
+
+	        while (!validIdFound) {
+	            try {
+	                System.out.println("Enter Staff ID to update:");
+	                String staffID = sc.next();
+	                psCheckId.setString(1, staffID);
+	                ResultSet rsId = psCheckId.executeQuery();
+
+	                rsId.next();
+	                int countId = rsId.getInt(1);
+
+	                if (countId > 0) {
+	                    validIdFound = true;
+
+	                    //Validate user input for Last Name
+	                    String lastName;
+	                    while (true) {
+	                        System.out.println("Enter Updated Last Name (max 15 characters):");
+	                        lastName = sc.next();
+	                        if (lastName.length() <= 15) {
+	                            break;
+	                        } else {
+	                            System.out.println("Last name should not exceed 15 characters long. Please try again.");
+	                        }
+	                    }
+
+
+	                    //Validate user input for First Name
+	                    String firstName;
+	                    while (true) {
+	                        System.out.println("Enter Updated First Name (max 15 characters):");
+	                        firstName = sc.next();
+	                        if (firstName.length() <= 15) {
+	                            break;
+	                        } else {
+	                            System.out.println("First name should not exceed 15 characters long. Please try again.");
+	                        }
+	                    }
+
+				
+	                    //Validate user input for Middle Initial
+	                    String middleInitial;
+	                    while (true) {
+	                        System.out.println("Enter Updated Middle Initial (only 1 character):");
+	                        middleInitial = sc.next();
+	                        if (middleInitial.length() == 1) {
+	                            break;
+	                        } else {
+	                            System.out.println("Middle initial should not exceed 1 character long. Please try again.");
+	                        }
+	                    }
+	                    		
+
+	                    //Validate user input for Age
+	                    int age = 0;
+	                    boolean isValidAge = false;
+	                    
+	                    while (!isValidAge) {
+	                        System.out.println("Enter Age (round off to the nearest year):");
+	                        
+	                        
+	                        // Read the entire line as a string
+	                        String inputAge = sc.nextLine();
+
+	                        // Check if the input can be parsed as an integer
+	                        try {
+	                            age = Integer.parseInt(inputAge);
+	                            isValidAge = true; 
+	                        } catch (NumberFormatException e) {
+	                            System.out.println("Please enter a valid integer for age.");
+	                        }
+	                    }
+	                    
+
+	                    //Validate user input for Address
+	                    String address;
+	                    while (true) {
+	                        System.out.println("Enter Address (max 20 characters):");
+	                        address = sc.next();
+	                        if (address.length() <= 20) {
+	                            break;
+	                        } else {
+	                            System.out.println("Address should not exceed 20 characters long. Please try again.");
+	                        }
+	                    }
+	                   
+
+
+	                    //Validate user input for City
+	                    String city;
+	                    while (true) {
+	                        System.out.println("Enter City (max 20 characters):");
+	                        city = sc.next();
+	                        if (city.length() <= 20) {
+	                            break;
+	                        } else {
+	                            System.out.println("City should not exceed 20 characters long. Please try again.");
+	                        }
+	                    }
+	                    
+
+
+	                    //Validate user input for State
+	                    String state;
+	                    while (true) {
+	                        System.out.println("Enter State (only 2 characters):");
+	                        state = sc.next();
+	                        if (state.length() == 2) {
+	                            break;
+	                        } else {
+	                            System.out.println("State should have exactly 2 characters. Please try again.");
+	                        }
+	                    }
+	                    
+
+
+	                    //Validate user input for Telephone
+	                    String telephone;
+	                    while (true) {
+	                        System.out.println("Enter Telephone (max 10 characters):");
+	                        telephone = sc.next();
+	                        if (telephone.length() <= 10) {
+	                            break;
+	                        } else {
+	                            System.out.println("Telephone should have at most 10 characters. Please try again.");
+	                        }
+	                    }
+	                    
+
+	                    //Validate user input for Email
+	                    String email;
+	                    while (true) {
+	                        System.out.println("Enter Email (max 40 characters):");
+	                        email = sc.next();
+	                        if (email.length() <= 40) {
+	                            break;
+	                        } else {
+	                            System.out.println("Email should have at most 40 characters. Please try again.");
+	                        }
+	                    }
+	                    
+	                    
+
+	                    psCheck.setString(1, firstName);
+	                    psCheck.setString(2, lastName);
+	                    psCheck.setInt(3, age);
+	                    ResultSet rsCheck = psCheck.executeQuery();
+	                    rsCheck.next();
+	                    int count = rsCheck.getInt(1);
+
+	                    if (count > 0) {
+	                        System.out.println("Record with the same first name, last name, and age already exists. Update aborted.");
+	                        System.out.println("Back to menu options...");
+	                    } else {
+	                        psUpdate.setString(1, lastName);
+	                        psUpdate.setString(2, firstName);
+	                        psUpdate.setString(3, middleInitial);
+	                        psUpdate.setInt(4, age);
+	                        psUpdate.setString(5, address);
+	                        psUpdate.setString(6, city);
+	                        psUpdate.setString(7, state);
+	                        psUpdate.setString(8, telephone);
+	                        psUpdate.setString(9, email);
+	                        psUpdate.setString(10, staffID);
+
+	                        int affectedRows = psUpdate.executeUpdate();
+
+	                        if (affectedRows > 0) {
+	                            System.out.println("Record updated successfully.");
+	                        } else {
+	                            System.out.println("No records were updated.");
+	                        }
+	                    }
+	                } else {
+	                    System.out.println("Staff ID not found. Please enter an existing ID.");
+	                }
+	            } catch (SQLException e) {
+	                System.out.println("Error updating staff information: " + e.getMessage());
+	            }
+	        }
+	    } catch (SQLException e) {
+	        System.out.println("Database error: " + e.getMessage());
+	    }
 	}
 	
 	
