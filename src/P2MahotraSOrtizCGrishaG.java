@@ -63,6 +63,8 @@ public class P2MahotraSOrtizCGrishaG {
 
 	//Check if ID exists query
 	public static String checkIfExistsQuery = "SELECT * FROM STAFF WHERE ID = ?";
+	
+	
 	// Methods
 	// Establishing connection to MySQL database
 	public static Connection getConnection() {
