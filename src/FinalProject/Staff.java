@@ -1,6 +1,7 @@
+package FinalProject;
 //Create a Staff class that will be used to encapsulate staff information
 
-public class Staff {
+public class Staff implements Comparable<Staff> {
 	private String id;
     private String lastName;
     private String firstName;
@@ -107,9 +108,9 @@ public class Staff {
 		this.email = email;
 	}
 	
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-
-	}
-
+	@Override
+    public int compareTo(Staff otherStaff) {
+        // Compare staff by age
+        return Integer.compare(this.age, otherStaff.age);
+    }
 }

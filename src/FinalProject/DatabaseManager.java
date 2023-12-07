@@ -1,4 +1,8 @@
-/* P2MahotraSOrtizCGrishaG
+package FinalProject;
+
+
+/* DatabaseManager.java
+ * 
  * The purpose of this Java console program is to view, insert, update and delete 
  * staff information stored in a MySQL database.
  * 
@@ -9,93 +13,55 @@
  * 
  * 
  * Revision History:
- *     Example: Shivam Mahotra, Charina Ortiz and Grisha Grisha, 2023.12.04: Created
- *     			Shivam Mahotra, Charina Ortiz and Grisha Grisha, 2023.12.05: Updated
+ *     Shivam Mahotra, Charina Ortiz and Grisha Grisha, 2023.12.04: Created
+ *     Shivam Mahotra, Charina Ortiz and Grisha Grisha, 2023.12.05: Updated
  *     	
  */
 
-//Import libraries
-
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.InputMismatchException;
-import java.util.List;
-import java.util.Scanner;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Scanner;
 
-public class P2MahotraSOrtizCGrishaG {
-
-	// Details for MySQL connection
-	public static String jdbcurl = "jdbc:mysql://localhost:3306/dtkfall";
-	public static String username = "root";
-	public static String password = "1234";
-
-	// Create table query
-	public static String createTableQuery = "CREATE TABLE Staff (" + "id char(9) not null, " + "lastName varchar(15), "
-			+ "firstName varchar(15), " + "mi char(1), " + "age int, " + "address varchar(20), " + "city varchar(20), "
-			+ "state char(2), " + "telephone char(10), " + "email varchar(40), " + "primary key (id))";
-
-	// View a record query
-	public static String selectQuery = "SELECT * FROM STAFF WHERE id = ?";
-
-	// View all records query
-	public static String selectAllQuery = "SELECT * FROM STAFF";
-
-	// Insert a record query
-	public static String insertQuery = "INSERT INTO STAFF"
-			+ "(id, lastName, firstName, mi, age, address, city, state, telephone, email) "
-			+ "values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
-	// Update a record query
-	public static String updateQuery = "UPDATE STAFF "
-			+ "SET lastName = ?, firstName = ?, mi = ?, age = ?, address = ?, "
-			+ "city = ?, state = ?, telephone = ?, email = ? " + "WHERE id = ?";
-
-	// Delete a record query
-	public static String deleteQuery = "DELETE FROM STAFF WHERE id = ?";
-
-	//Check if ID exists query
-	public static String checkIfExistsQuery = "SELECT * FROM STAFF WHERE ID = ?";
-	
-	
-	// Methods
-	// Establishing connection to MySQL database
+public class DatabaseManager {
+	//Establishing connection to MySQL database
 	public static Connection getConnection() {
 		Connection conn = null;
 		try {
-			conn = DriverManager.getConnection(jdbcurl, username, password);
+			conn = DriverManager.getConnection(CommonConstants.jdbcurl, CommonConstants.username, CommonConstants.password);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		return conn;
 	}
 
-	// Creating a table method
+	//Creating a table method
 	public void createTable() {
 		System.out.println("Creating a table using the query as follows: \n");
-		System.out.println(createTableQuery);
+		System.out.println(CommonConstants.createTableQuery);
 		try (Connection conn = P2MahotraSOrtizCGrishaG.getConnection(); Statement s = conn.createStatement();) {
-			s.execute(createTableQuery);
+			s.execute(CommonConstants.createTableQuery);
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
 		}
 	}
 
-	// Viewing a record method
+	//Viewing a record method
 	public Staff selectID(Scanner sc) {
 		Staff staff = null;
 		boolean validIdFound = false;
 
 		while (!validIdFound) {
 			try (Connection conn = P2MahotraSOrtizCGrishaG.getConnection();
-					PreparedStatement ps = conn.prepareStatement(selectQuery)) {
+					PreparedStatement ps = conn.prepareStatement(CommonConstants.selectQuery)) {
 
 				System.out.println("Please enter the Staff ID you want to retrieve");
 				String staffID = sc.next();
@@ -145,14 +111,14 @@ public class P2MahotraSOrtizCGrishaG {
 		return staff;
 	}
 
-	// Viewing all records method
+	//Viewing all records method
 	public void selectAll() {
 		// Create an ArrayList to store all rows from the table
 		List<Staff> staffList = new ArrayList<>();
 
-		try {
-			Connection conn = P2MahotraSOrtizCGrishaG.getConnection();
-			PreparedStatement ps = conn.prepareStatement(selectAllQuery);
+		try (Connection conn = P2MahotraSOrtizCGrishaG.getConnection();
+				PreparedStatement ps = conn.prepareStatement(CommonConstants.selectAllQuery)){
+
 			ResultSet rs = ps.executeQuery();
 
 			while (rs.next()) {
@@ -174,7 +140,8 @@ public class P2MahotraSOrtizCGrishaG {
 			}
 
 			// Sort the collection by age in ascending order
-			Collections.sort(staffList, Comparator.comparingInt(Staff::getAge));
+//			Collections.sort(staffList, Comparator.comparingInt(Staff::getAge));
+			Collections.sort(staffList);
 
 			// Check if collection list if empty before returning the data
 			if (!staffList.isEmpty()) {
@@ -182,10 +149,10 @@ public class P2MahotraSOrtizCGrishaG {
 				for (Staff staff : staffList) {
 					System.out.println("ID: " + staff.getId());
 					System.out
-							.println("Name: " + staff.getFirstName() + " " + staff.getMi() + " " + staff.getLastName());
+					.println("Name: " + staff.getFirstName() + " " + staff.getMi() + " " + staff.getLastName());
 					System.out.println("Age: " + staff.getAge());
 					System.out
-							.println("Address: " + staff.getAddress() + " " + staff.getCity() + " " + staff.getState());
+					.println("Address: " + staff.getAddress() + " " + staff.getCity() + " " + staff.getState());
 					System.out.println("Telephone: " + staff.getTelephone());
 					System.out.println("Email: " + staff.getEmail() + "\n");
 				}
@@ -203,32 +170,33 @@ public class P2MahotraSOrtizCGrishaG {
 	public void insertRecord(Scanner sc) {
 
 		try (Connection conn = P2MahotraSOrtizCGrishaG.getConnection();
-				PreparedStatement psCheck = conn.prepareStatement(
-						"SELECT COUNT(*) FROM STAFF WHERE firstName = ? AND lastName = ? AND age = ?");
-				PreparedStatement ps = conn.prepareStatement(insertQuery)) {
+				PreparedStatement psCheck = conn.prepareStatement(CommonConstants.countSameNameAndAge);
+				PreparedStatement ps = conn.prepareStatement(CommonConstants.insertQuery)) {
 
 			// Validate user input for Staff ID
 			String staffID;
 			while (true) {
-				System.out.println("Enter Staff ID (9 characters):");
+				System.out.println("Enter Staff ID (9 alphanumeric characters):");
 				staffID = sc.next();
-				if (staffID.length() == 9) {
+				if (staffID.length() == 9 && staffID.matches("[a-zA-Z0-9]+")) {
+					// Check if the Staff ID is 9 characters long and contains only alphanumeric characters
 					break;
 				} else {
-					System.out.println("Staff ID should be 9 characters long. Please try again.");
+					System.out.println("Invalid Staff ID format. Please enter 9 alphanumeric characters.");
 				}
 			}
 			ps.setString(1, staffID);
 
+
 			// Validate user input for Last Name
 			String lastName;
 			while (true) {
-				System.out.println("Enter Last Name (max 15 characters):");
+				System.out.println("Enter Last Name (max 15 characters, alphabets only):");
 				lastName = sc.next();
-				if (lastName.length() <= 15) {
+				if (lastName.matches("[a-zA-Z]+") && lastName.length() <= 15) {
 					break;
 				} else {
-					System.out.println("Last name should not exceed 15 characters long. Please try again.");
+					System.out.println("Last name should contain only alphabets and not exceed 15 characters. Please try again.");
 				}
 			}
 			ps.setString(2, lastName);
@@ -236,12 +204,12 @@ public class P2MahotraSOrtizCGrishaG {
 			// Validate user input for First Name
 			String firstName;
 			while (true) {
-				System.out.println("Enter First Name (max 15 characters):");
+				System.out.println("Enter First Name (max 15 characters, alphabets only):");
 				firstName = sc.next();
-				if (firstName.length() <= 15) {
+				if (firstName.matches("[a-zA-Z]+") && firstName.length() <= 15) {
 					break;
 				} else {
-					System.out.println("First name should not exceed 15 characters long. Please try again.");
+					System.out.println("First name should contain only alphabets and not exceed 15 characters. Please try again.");
 				}
 			}
 			ps.setString(3, firstName);
@@ -249,15 +217,17 @@ public class P2MahotraSOrtizCGrishaG {
 			// Validate user input for Middle Initial
 			String middleInitial;
 			while (true) {
-				System.out.println("Enter Middle Initial (only 1 character):");
+				System.out.println("Enter Middle Initial (only 1 alphabet):");
 				middleInitial = sc.next();
-				if (middleInitial.length() == 1) {
+				if (middleInitial.length() == 1 && Character.isLetter(middleInitial.charAt(0))) {
+					// Check if the character is an alphabet
 					break;
 				} else {
-					System.out.println("Middle initial should not exceed 1 character long. Please try again.");
+					System.out.println("Invalid middle initial format. Please enter a single alphabet.");
 				}
 			}
-			ps.setString(4, middleInitial);
+			ps.setString(4, middleInitial.toUpperCase()); // Store the middle initial as uppercase
+
 
 			// Validate user input for Age
 			int age = 0;
@@ -267,7 +237,7 @@ public class P2MahotraSOrtizCGrishaG {
 				System.out.println("Enter Age (round off to the nearest year):");
 
 				// Read the entire line as a string
-				String inputAge = sc.nextLine();
+				String inputAge = sc.next();
 
 				// Check if the input can be parsed as an integer
 				try {
@@ -281,39 +251,43 @@ public class P2MahotraSOrtizCGrishaG {
 
 			// Validate user input for Address
 			String address;
+			
 			while (true) {
-				System.out.println("Enter Address (max 20 characters):");
-				address = sc.next();
-				if (address.length() <= 20) {
+				System.out.println("Enter Address (max 20 characters, alphanumeric with ',' and '-'):");
+				sc.nextLine();
+				address = sc.nextLine();
+				if (address.matches("[a-zA-Z0-9,\\- ]+") && address.length() <= 20) {
 					break;
 				} else {
-					System.out.println("Address should not exceed 20 characters long. Please try again.");
+					System.out.println("Invalid address format or exceeds 20 characters. Please try again.");
 				}
 			}
 			ps.setString(6, address);
 
+
 			// Validate user input for City
 			String city;
 			while (true) {
-				System.out.println("Enter City (max 20 characters):");
+				System.out.println("Enter City (max 20 characters, alphabets only):");
 				city = sc.next();
-				if (city.length() <= 20) {
+				if (city.matches("[a-zA-Z]+") && city.length() <= 20) {
 					break;
 				} else {
-					System.out.println("City should not exceed 20 characters long. Please try again.");
+					System.out.println("City should contain only alphabets and not exceed 20 characters. Please try again.");
 				}
 			}
 			ps.setString(7, city);
 
+
 			// Validate user input for State
 			String state;
 			while (true) {
-				System.out.println("Enter State (only 2 characters):");
+				System.out.println("Enter State (only 2 characters, alphabets only):");
 				state = sc.next();
-				if (state.length() == 2) {
+				if (state.matches("[a-zA-Z]{2}")) {
 					break;
 				} else {
-					System.out.println("State should have exactly 2 characters. Please try again.");
+					System.out.println("State should contain only alphabets and have exactly 2 characters. Please try again.");
 				}
 			}
 			ps.setString(8, state);
@@ -321,12 +295,12 @@ public class P2MahotraSOrtizCGrishaG {
 			// Validate user input for Telephone
 			String telephone;
 			while (true) {
-				System.out.println("Enter Telephone (max 10 characters):");
+				System.out.println("Enter Telephone (max 10 characters, digits only):");
 				telephone = sc.next();
-				if (telephone.length() <= 10) {
+				if (telephone.matches("\\d+") && telephone.length() <= 10) {
 					break;
 				} else {
-					System.out.println("Telephone should have at most 10 characters. Please try again.");
+					System.out.println("Telephone should contain only digits and not exceed 10 characters. Please try again.");
 				}
 			}
 			ps.setString(9, telephone);
@@ -336,16 +310,15 @@ public class P2MahotraSOrtizCGrishaG {
 			while (true) {
 				System.out.println("Enter Email (max 40 characters):");
 				email = sc.next();
-				if (email.length() <= 40) {
+				if (email.length() <= 40 && email.contains("@")) {
 					break;
 				} else {
-					System.out.println("Email should have at most 40 characters. Please try again.");
+					System.out.println("Invalid email format or exceeds 40 characters. Please try again.");
 				}
 			}
 			ps.setString(10, email);
 
-			// Check if the record with the same first name, last name, and age already
-			// exists
+			// Check if the record with the same first name, last name, and age already exists
 			psCheck.setString(1, firstName);
 			psCheck.setString(2, lastName);
 			psCheck.setInt(3, age);
@@ -354,8 +327,7 @@ public class P2MahotraSOrtizCGrishaG {
 			int count = rs.getInt(1);
 
 			if (count > 0) {
-				System.out.println(
-						"Record with the same first name, last name, and age already exists. Insertion aborted.");
+				System.out.println("Record with the same first name, last name, and age already exists. Insertion aborted.");
 				System.out.println("Back to menu options...");
 			} else {
 				ps.executeUpdate();
@@ -373,10 +345,9 @@ public class P2MahotraSOrtizCGrishaG {
 	// Update a record method
 	public void updateRecord(Scanner sc) {
 		try (Connection conn = P2MahotraSOrtizCGrishaG.getConnection();
-				PreparedStatement psCheckId = conn.prepareStatement("SELECT COUNT(*) FROM STAFF WHERE id = ?");
-				PreparedStatement psCheck = conn.prepareStatement(
-						"SELECT COUNT(*) FROM STAFF WHERE firstName = ? AND lastName = ? AND age = ?");
-				PreparedStatement psUpdate = conn.prepareStatement(updateQuery)) {
+				PreparedStatement psCheckId = conn.prepareStatement(CommonConstants.countStaffIds);
+				PreparedStatement psCheck = conn.prepareStatement(CommonConstants.countSameNameAndAge);
+				PreparedStatement psUpdate = conn.prepareStatement(CommonConstants.updateQuery)) {
 
 			boolean validIdFound = false;
 
@@ -396,38 +367,39 @@ public class P2MahotraSOrtizCGrishaG {
 						// Validate user input for Last Name
 						String lastName;
 						while (true) {
-							System.out.println("Enter Updated Last Name (max 15 characters):");
+							System.out.println("Enter Updated Last Name (max 15 alphabetic characters):");
 							lastName = sc.next();
-							if (lastName.length() <= 15) {
+							if (lastName.length() <= 15 && lastName.matches("[a-zA-Z]+")) {
+								// Check if Last Name is 15 characters or less and contains only alphabetic characters
 								break;
 							} else {
-								System.out.println("Last name should not exceed 15 characters long. Please try again.");
+								System.out.println("Invalid Last Name format. Please enter up to 15 alphabetic characters.");
 							}
 						}
 
 						// Validate user input for First Name
 						String firstName;
 						while (true) {
-							System.out.println("Enter Updated First Name (max 15 characters):");
+							System.out.println("Enter Updated First Name (max 15 alphabetic characters):");
 							firstName = sc.next();
-							if (firstName.length() <= 15) {
+							if (firstName.length() <= 15 && firstName.matches("[a-zA-Z]+")) {
+								// Check if First Name is 15 characters or less and contains only alphabetic characters
 								break;
 							} else {
-								System.out
-										.println("First name should not exceed 15 characters long. Please try again.");
+								System.out.println("Invalid First Name format. Please enter up to 15 alphabetic characters.");
 							}
 						}
 
 						// Validate user input for Middle Initial
 						String middleInitial;
 						while (true) {
-							System.out.println("Enter Updated Middle Initial (only 1 character):");
+							System.out.println("Enter Updated Middle Initial (only 1 alphabetic character):");
 							middleInitial = sc.next();
-							if (middleInitial.length() == 1) {
+							if (middleInitial.length() == 1 && middleInitial.matches("[a-zA-Z]")) {
+								// Check if Middle Initial is 1 character long and contains only alphabetic characters
 								break;
 							} else {
-								System.out.println(
-										"Middle initial should not exceed 1 character long. Please try again.");
+								System.out.println("Invalid Middle Initial format. Please enter exactly 1 alphabetic character.");
 							}
 						}
 
@@ -439,7 +411,7 @@ public class P2MahotraSOrtizCGrishaG {
 							System.out.println("Enter Age (round off to the nearest year):");
 
 							// Read the entire line as a string
-							String inputAge = sc.nextLine();
+							String inputAge = sc.next();
 
 							// Check if the input can be parsed as an integer
 							try {
@@ -453,48 +425,53 @@ public class P2MahotraSOrtizCGrishaG {
 						// Validate user input for Address
 						String address;
 						while (true) {
-							System.out.println("Enter Address (max 20 characters):");
-							address = sc.next();
-							if (address.length() <= 20) {
+							System.out.println("Enter Address (max 20 alphanumeric characters):");
+							sc.nextLine();
+							address = sc.nextLine();
+							if (address.length() <= 20 && address.matches("[a-zA-Z0-9,\\- ]+")) {
+								// Check if Address is 20 characters or less and contains only alphanumeric characters, ',' and '-'
 								break;
 							} else {
-								System.out.println("Address should not exceed 20 characters long. Please try again.");
+								System.out.println("Invalid Address format. Please enter up to 20 alphanumeric characters.");
 							}
 						}
 
 						// Validate user input for City
 						String city;
 						while (true) {
-							System.out.println("Enter City (max 20 characters):");
+							System.out.println("Enter City (max 20 alphabetic characters):");
 							city = sc.next();
-							if (city.length() <= 20) {
+							if (city.length() <= 20 && city.matches("[a-zA-Z]+")) {
+								// Check if City is 20 characters or less and contains only alphabetic characters
 								break;
 							} else {
-								System.out.println("City should not exceed 20 characters long. Please try again.");
+								System.out.println("Invalid City format. Please enter up to 20 alphabetic characters.");
 							}
 						}
 
 						// Validate user input for State
 						String state;
 						while (true) {
-							System.out.println("Enter State (only 2 characters):");
+							System.out.println("Enter State (only 2 alphabetic characters):");
 							state = sc.next();
-							if (state.length() == 2) {
+							if (state.length() == 2 && state.matches("[a-zA-Z]+")) {
+								// Check if State is exactly 2 characters long and contains only alphabetic characters
 								break;
 							} else {
-								System.out.println("State should have exactly 2 characters. Please try again.");
+								System.out.println("Invalid State format. Please enter exactly 2 alphabetic characters.");
 							}
 						}
 
 						// Validate user input for Telephone
 						String telephone;
 						while (true) {
-							System.out.println("Enter Telephone (max 10 characters):");
+							System.out.println("Enter Telephone (only digits, max 10 characters):");
 							telephone = sc.next();
-							if (telephone.length() <= 10) {
+							if (telephone.length() <= 10 && telephone.matches("[0-9]+")) {
+								// Check if Telephone is 10 characters or less and contains only digits
 								break;
 							} else {
-								System.out.println("Telephone should have at most 10 characters. Please try again.");
+								System.out.println("Invalid Telephone format. Please enter up to 10 digits.");
 							}
 						}
 
@@ -504,11 +481,13 @@ public class P2MahotraSOrtizCGrishaG {
 							System.out.println("Enter Email (max 40 characters):");
 							email = sc.next();
 							if (email.length() <= 40) {
+								// You may want to add a more sophisticated email validation here
 								break;
 							} else {
-								System.out.println("Email should have at most 40 characters. Please try again.");
+								System.out.println("Invalid Email format. Please enter up to 40 characters.");
 							}
 						}
+
 
 						psCheck.setString(1, firstName);
 						psCheck.setString(2, lastName);
@@ -534,7 +513,8 @@ public class P2MahotraSOrtizCGrishaG {
 							psUpdate.setString(10, staffID);
 
 							int affectedRows = psUpdate.executeUpdate();
-
+													
+							
 							if (affectedRows > 0) {
 								System.out.println("Record updated successfully.");
 							} else {
@@ -558,96 +538,29 @@ public class P2MahotraSOrtizCGrishaG {
 		// Initialize the deletedId
 		String deletedID = "";
 		try (Connection conn = P2MahotraSOrtizCGrishaG.getConnection();
-		        PreparedStatement checkIfExistsPs = conn.prepareStatement(checkIfExistsQuery);
-				PreparedStatement ps = conn.prepareStatement(deleteQuery)) {
+				PreparedStatement checkIfExistsPs = conn.prepareStatement(CommonConstants.checkIfExistsQuery);
+				PreparedStatement ps = conn.prepareStatement(CommonConstants.deleteQuery)) {
 
 			// Check if user wants to update particular field, if no fetch current record
-	        System.out.println("Enter the ID of the staff information you want to delete:");
-	        // Capture the deletedId
-	        deletedID = sc.next();
+			System.out.println("Enter the ID of the staff information you want to delete:");
+			// Capture the deletedId
+			deletedID = sc.next();
 
-	        // Check if the staff ID exists in the database
-	        checkIfExistsPs.setString(1, deletedID);
-	        ResultSet resultSet = checkIfExistsPs.executeQuery();
+			// Check if the staff ID exists in the database
+			checkIfExistsPs.setString(1, deletedID);
+			ResultSet resultSet = checkIfExistsPs.executeQuery();
 
-	        if (resultSet.next()) {
-	            // If staff ID exists, proceed with deletion
-	        	ps.setString(1, deletedID);
-	        	ps.executeUpdate();
-	            System.out.println("Staff information with ID " + deletedID + " has been deleted successfully.");
-	        } else {
-	            // If staff ID does not exist, inform the user
-	            System.out.println("Staff information with ID " + deletedID + " does not exist in the database.");
-	        }
-	    } catch (SQLException e) {
-	        e.printStackTrace();
-	    }
-	}
-
-	public static void main(String[] args) {
-
-		// Create an instance of the class
-		P2MahotraSOrtizCGrishaG ddl = new P2MahotraSOrtizCGrishaG();
-
-		// Establish a connection
-		System.out.println("Trying to connect to MySQL database...");
-		ddl.getConnection();
-		System.out.println("Success! Database connection has been established.");
-
-		// Create a table
-//		s.createTable();
-
-		// Welcome message and menu button
-		System.out.println("=====================================================================");
-		System.out.println("Welcome to Java-MySQL Database integration console.");
-		System.out.println("=====================================================================");
-		System.out.println("Choose an operation from the menu below. Type only the number.");
-
-		Scanner sc = new Scanner(System.in);
-		boolean exit = false;
-
-		while (exit == false) {
-			System.out.println("_________________________________________");
-			System.out.println("|(1) View Staff Information by ID	|");
-			System.out.println("|(2) View All Staff Information		|");
-			System.out.println("|(3) Insert New Staff Information	|");
-			System.out.println("|(4) Update Staff Information		|");
-			System.out.println("|(5) Delete Staff Information		|");
-			System.out.println("|(6) Exit				|");
-			System.out.println("_________________________________________");
-
-			try {
-				int choice = sc.nextInt();
-
-				switch (choice) {
-				case 1:
-					ddl.selectID(sc);
-					break;
-				case 2:
-					ddl.selectAll();
-					break;
-				case 3:
-					ddl.insertRecord(sc);
-					break;
-				case 4:
-					ddl.updateRecord(sc);
-					break;
-				case 5:
-					ddl.deleteRecord(sc);
-					break;
-				case 6:
-					exit = true;
-					break;
-				default:
-					System.out.println("Invalid choice. Please enter a valid option.");
-				}
-			} catch (InputMismatchException e) {
-				System.out.println("Invalid choice. Please enter a valid option."); // Validation - Raise an error
-																					// message for input other than
-																					// integer
-				sc.next();
+			if (resultSet.next()) {
+				// If staff ID exists, proceed with deletion
+				ps.setString(1, deletedID);
+				ps.executeUpdate();
+				System.out.println("Staff information with ID " + deletedID + " has been deleted successfully.");
+			} else {
+				// If staff ID does not exist, inform the user
+				System.out.println("Staff information with ID " + deletedID + " does not exist in the database.");
 			}
+		} catch (SQLException e) {
+			e.printStackTrace();
 		}
-		System.out.println("Have a nice day!");
 	}
 }
