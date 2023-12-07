@@ -32,6 +32,10 @@ import java.util.List;
 import java.util.Scanner;
 
 public class DatabaseManager {
+
+	// Adding a class-level variable to store the collection
+	private static List<Staff> staffList = new ArrayList<>();
+
 	//Establishing connection to MySQL database
 	public static Connection getConnection() {
 		Connection conn = null;
@@ -54,7 +58,7 @@ public class DatabaseManager {
 		}
 	}
 
-	//Viewing a record method
+	// Viewing a record method
 	public Staff selectID(Scanner sc) {
 		Staff staff = null;
 		boolean validIdFound = false;
@@ -102,6 +106,8 @@ public class DatabaseManager {
 					System.out.println("Staff ID not found. Please try again.");
 				} else {
 					validIdFound = true;
+					// Add the retrieved Staff object to the collection
+					staffList.add(staff);
 				}
 
 			} catch (SQLException e) {
@@ -111,13 +117,11 @@ public class DatabaseManager {
 		return staff;
 	}
 
-	//Viewing all records method
 	public void selectAll() {
 		// Create an ArrayList to store all rows from the table
-		List<Staff> staffList = new ArrayList<>();
 
 		try (Connection conn = P2MahotraSOrtizCGrishaG.getConnection();
-				PreparedStatement ps = conn.prepareStatement(CommonConstants.selectAllQuery)){
+				PreparedStatement ps = conn.prepareStatement(CommonConstants.selectAllQuery)) {
 
 			ResultSet rs = ps.executeQuery();
 
@@ -133,15 +137,34 @@ public class DatabaseManager {
 				String telephone = rs.getString("telephone");
 				String email = rs.getString("email");
 
-				// Create a staff object for each retrieved row
-				Staff staff = new Staff(id, lastName, firstName, mi, age, address, city, state, telephone, email);
-				// Append the staff object to the ArrayList
-				staffList.add(staff);
-			}
+				// Check if staff with the same ID exists in the staffList
+	            boolean found = false;
+	            for (Staff staff : staffList) {
+	                if (staff.getId().equals(id)) {
+	                    // Update existing staff information
+	                    staff.setLastName(lastName);
+	                    staff.setFirstName(firstName);
+	                    staff.setMi(mi);
+	                    staff.setAge(age);
+	                    staff.setAddress(address);
+	                    staff.setCity(city);
+	                    staff.setState(state);
+	                    staff.setTelephone(telephone);
+	                    staff.setEmail(email);
+	                    found = true;
+	                    break;
+	                }
+	            }
+
+	            // If staff with the same ID was not found, create and add a new staff object
+	            if (!found) {
+	                Staff staff = new Staff(id, lastName, firstName, mi, age, address, city, state, telephone, email);
+	                staffList.add(staff);
+	            }
+	        }
 
 			// Sort the collection by age in ascending order
-//			Collections.sort(staffList, Comparator.comparingInt(Staff::getAge));
-			Collections.sort(staffList);
+			Collections.sort(staffList, Comparator.comparingInt(Staff::getAge));
 
 			// Check if collection list if empty before returning the data
 			if (!staffList.isEmpty()) {
@@ -165,6 +188,7 @@ public class DatabaseManager {
 			System.out.println("Error retrieving staff information: " + e.getMessage());
 		}
 	}
+
 
 	// Insert a record method
 	public void insertRecord(Scanner sc) {
@@ -251,7 +275,7 @@ public class DatabaseManager {
 
 			// Validate user input for Address
 			String address;
-			
+
 			while (true) {
 				System.out.println("Enter Address (max 20 characters, alphanumeric with ',' and '-'):");
 				sc.nextLine();
@@ -330,8 +354,15 @@ public class DatabaseManager {
 				System.out.println("Record with the same first name, last name, and age already exists. Insertion aborted.");
 				System.out.println("Back to menu options...");
 			} else {
+				// Execute the insert query
 				ps.executeUpdate();
 				System.out.println("Record successfully added to the STAFF table.");
+
+				// Create a new Staff object for the inserted record
+				Staff newStaff = new Staff(staffID, lastName, firstName, middleInitial.charAt(0), age, address, city, state, telephone, email);
+
+				// Add the new Staff object to the collection
+				staffList.add(newStaff);
 			}
 		} catch (SQLIntegrityConstraintViolationException e) {
 			System.out.println("Duplicate ID error: The record with the same Staff ID already exists in the database.");
@@ -513,10 +544,25 @@ public class DatabaseManager {
 							psUpdate.setString(10, staffID);
 
 							int affectedRows = psUpdate.executeUpdate();
-													
-							
+
 							if (affectedRows > 0) {
 								System.out.println("Record updated successfully.");
+
+								// Find the corresponding Staff object in the collection and update its fields
+								for (Staff staff : staffList) {
+									if (staff.getId().equals(staffID)) {
+										staff.setLastName(lastName);
+										staff.setFirstName(firstName);
+										staff.setMi(middleInitial.charAt(0));
+										staff.setAge(age);
+										staff.setAddress(address);
+										staff.setCity(city);
+										staff.setState(state);
+										staff.setTelephone(telephone);
+										staff.setEmail(email);
+										break; // No need to continue searching after updating
+									}
+								}
 							} else {
 								System.out.println("No records were updated.");
 							}
@@ -541,7 +587,7 @@ public class DatabaseManager {
 				PreparedStatement checkIfExistsPs = conn.prepareStatement(CommonConstants.checkIfExistsQuery);
 				PreparedStatement ps = conn.prepareStatement(CommonConstants.deleteQuery)) {
 
-			// Check if user wants to update particular field, if no fetch current record
+			// Check if user wants to update a particular field, if no fetch current record
 			System.out.println("Enter the ID of the staff information you want to delete:");
 			// Capture the deletedId
 			deletedID = sc.next();
@@ -555,6 +601,12 @@ public class DatabaseManager {
 				ps.setString(1, deletedID);
 				ps.executeUpdate();
 				System.out.println("Staff information with ID " + deletedID + " has been deleted successfully.");
+
+				// Create a final variable to capture deletedID value
+				final String finalDeletedID = deletedID;
+
+				// Remove the corresponding Staff object from the collection
+				staffList.removeIf(staff -> staff.getId().equals(finalDeletedID));
 			} else {
 				// If staff ID does not exist, inform the user
 				System.out.println("Staff information with ID " + deletedID + " does not exist in the database.");
